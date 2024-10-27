@@ -1,3 +1,7 @@
+# 2.0.0
+
+- feat: adds support for Swift 6 by @kevinhermawan in https://github.com/kevinhermawan/swift-json-schema/pull/6
+
 # 1.0.3
 
 - feat: adds JSON string initialization by @kevinhermawan in https://github.com/kevinhermawan/swift-json-schema/pull/4
