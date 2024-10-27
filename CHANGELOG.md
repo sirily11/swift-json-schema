@@ -1,3 +1,8 @@
+# 2.0.1
+
+- docs: adds related packages section by @kevinhermawan in https://github.com/kevinhermawan/swift-json-schema/pull/7
+- ci: update machine to macOS 15 by @kevinhermawan in https://github.com/kevinhermawan/swift-json-schema/pull/8
+
 # 2.0.0
 
 - feat: adds support for Swift 6 by @kevinhermawan in https://github.com/kevinhermawan/swift-json-schema/pull/6
