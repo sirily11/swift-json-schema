@@ -18,6 +18,9 @@ public final class JSONSchema: Codable, Sendable {
         case number
         case object
         case string
+        case oneOf
+        case anyOf
+        case allOf
     }
     
     public let title: String?
@@ -32,6 +35,7 @@ public final class JSONSchema: Codable, Sendable {
     public let numberSchema: NumberSchema?
     public let objectSchema: ObjectSchema?
     public let stringSchema: StringSchema?
+    public let combinedSchema: CombinedSchema?
     
     init(
         title: String? = nil,
@@ -44,7 +48,8 @@ public final class JSONSchema: Codable, Sendable {
         nullSchema: NullSchema? = nil,
         numberSchema: NumberSchema? = nil,
         objectSchema: ObjectSchema? = nil,
-        stringSchema: StringSchema? = nil
+        stringSchema: StringSchema? = nil,
+        combinedSchema: CombinedSchema? = nil
     ) {
         self.title = title
         self.type = type
@@ -57,6 +62,7 @@ public final class JSONSchema: Codable, Sendable {
         self.numberSchema = numberSchema
         self.objectSchema = objectSchema
         self.stringSchema = stringSchema
+        self.combinedSchema = combinedSchema
     }
     
     public required init(from decoder: Decoder) throws {
@@ -68,6 +74,15 @@ public final class JSONSchema: Codable, Sendable {
         if container.contains(.enum) {
             tempType = .enum
             tempEnumSchema = try EnumSchema(from: decoder)
+        } else if container.contains(.oneOf) {
+            tempType = .oneOf
+            tempEnumSchema = nil
+        } else if container.contains(.anyOf) {
+            tempType = .anyOf
+            tempEnumSchema = nil
+        } else if container.contains(.allOf) {
+            tempType = .allOf
+            tempEnumSchema = nil
         } else {
             tempType = try container.decode(SchemaType.self, forKey: .type)
             tempEnumSchema = nil
@@ -88,6 +103,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .boolean:
             self.arraySchema = nil
             self.booleanSchema = try BooleanSchema(from: decoder)
@@ -97,6 +113,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .enum:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -106,6 +123,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .integer:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -115,6 +133,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .null:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -124,6 +143,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .number:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -133,6 +153,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = try NumberSchema(from: decoder)
             self.objectSchema = nil
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .object:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -142,6 +163,7 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = try ObjectSchema(from: decoder)
             self.stringSchema = nil
+            self.combinedSchema = nil
         case .string:
             self.arraySchema = nil
             self.booleanSchema = nil
@@ -151,13 +173,24 @@ public final class JSONSchema: Codable, Sendable {
             self.numberSchema = nil
             self.objectSchema = nil
             self.stringSchema = try StringSchema(from: decoder)
+            self.combinedSchema = nil
+        case .oneOf, .anyOf, .allOf:
+            self.arraySchema = nil
+            self.booleanSchema = nil
+            self.enumSchema = nil
+            self.integerSchema = nil
+            self.nullSchema = nil
+            self.numberSchema = nil
+            self.objectSchema = nil
+            self.stringSchema = nil
+            self.combinedSchema = try CombinedSchema(from: decoder)
         }
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
-        if type != .enum {
+        if type != .enum && type != .oneOf && type != .anyOf && type != .allOf {
             try container.encode(type, forKey: .type)
         }
         
@@ -180,11 +213,13 @@ public final class JSONSchema: Codable, Sendable {
             try objectSchema?.encode(to: encoder)
         case .string:
             try stringSchema?.encode(to: encoder)
+        case .oneOf, .anyOf, .allOf:
+            try combinedSchema?.encode(to: encoder)
         }
     }
     
     private enum CodingKeys: String, CodingKey {
-        case type, description, `enum`, title
+        case type, description, `enum`, title, oneOf, anyOf, allOf
     }
     
     /// Creates a new instance of ``JSONSchema`` from a JSON string.
@@ -210,6 +245,7 @@ public final class JSONSchema: Codable, Sendable {
         self.numberSchema = decodedSchema.numberSchema
         self.objectSchema = decodedSchema.objectSchema
         self.stringSchema = decodedSchema.stringSchema
+        self.combinedSchema = decodedSchema.combinedSchema
         self.title = decodedSchema.title
     }
 }
