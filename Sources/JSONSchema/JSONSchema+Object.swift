@@ -26,6 +26,9 @@ public extension JSONSchema {
         
         /// A dictionary of regex patterns and their corresponding JSON schemas for matching property names. [10.3.2.2](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.2)
         public let patternProperties: [String: JSONSchema]?
+
+        /// A dictionary of property names and their corresponding JSON schemas for matching property names. [10.3.2.2](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.2)
+        public let dependencies: [String: JSONSchema]?
         
         /// An enum that represents the possible values for the ``additionalProperties`` field in an object schema.
         public enum AdditionalProperties: Codable, Sendable {
@@ -75,7 +78,8 @@ public extension JSONSchema {
         minProperties: Int? = nil,
         maxProperties: Int? = nil,
         additionalProperties: ObjectSchema.AdditionalProperties? = nil,
-        patternProperties: [String: JSONSchema]? = nil
+        patternProperties: [String: JSONSchema]? = nil,
+        dependencies: [String: JSONSchema]? = nil
     ) -> JSONSchema {
         JSONSchema(
             type: .object,
@@ -86,7 +90,8 @@ public extension JSONSchema {
                 minProperties: minProperties,
                 maxProperties: maxProperties,
                 additionalProperties: additionalProperties,
-                patternProperties: patternProperties
+                patternProperties: patternProperties,
+                dependencies: dependencies
             )
         )
     }
