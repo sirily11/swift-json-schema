@@ -9,8 +9,6 @@ import Foundation
 
 public extension JSONSchema {
     struct ObjectSchema: Codable, Sendable {
-        /// The title of the object schema. [10.3.2.1](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.1)
-        public let title: String?
         /// A dictionary of property names and their corresponding JSON schemas. [10.3.2.1](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.1)
         public let properties: [String: JSONSchema]?
         
@@ -85,10 +83,10 @@ public extension JSONSchema {
         dependencies: [String: JSONSchema]? = nil
     ) -> JSONSchema {
         JSONSchema(
+            title: title,
             type: .object,
             description: description,
             objectSchema: ObjectSchema(
-                title: title,
                 properties: properties,
                 required: required,
                 minProperties: minProperties,
