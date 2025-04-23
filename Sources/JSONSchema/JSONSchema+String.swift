@@ -18,6 +18,9 @@ public extension JSONSchema {
         
         /// A regular expression pattern that the string must match. [6.3.3](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.6.3.3)
         public let pattern: String?
+
+        /// Format of the string. [6.3.4](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-validation-00#rfc.section.6.3.4)
+        public let format: String?
     }
     
     /// Creates a new JSON Schema for a string type.
@@ -32,7 +35,8 @@ public extension JSONSchema {
         description: String? = nil,
         minLength: Int? = nil,
         maxLength: Int? = nil,
-        pattern: String? = nil
+        pattern: String? = nil,
+        format: String? = nil
     ) -> JSONSchema {
         JSONSchema(
             type: .string,
@@ -40,7 +44,8 @@ public extension JSONSchema {
             stringSchema: StringSchema(
                 minLength: minLength,
                 maxLength: maxLength,
-                pattern: pattern
+                pattern: pattern,
+                format: format
             )
         )
     }
