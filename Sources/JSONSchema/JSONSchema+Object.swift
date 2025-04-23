@@ -9,6 +9,8 @@ import Foundation
 
 public extension JSONSchema {
     struct ObjectSchema: Codable, Sendable {
+        /// The title of the object schema. [10.3.2.1](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.1)
+        public let title: String?
         /// A dictionary of property names and their corresponding JSON schemas. [10.3.2.1](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.1)
         public let properties: [String: JSONSchema]?
         
@@ -72,6 +74,7 @@ public extension JSONSchema {
     ///   - patternProperties: A dictionary of regex patterns and their corresponding JSON schemas for matching property names. [10.3.2.2](https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-00#rfc.section.10.3.2.2)
     /// - Returns: A new ``JSONSchema`` instance that represents an object schema.
     static func object(
+        title: String? = nil,
         description: String? = nil,
         properties: [String: JSONSchema]? = nil,
         required: [String]? = nil,
@@ -85,6 +88,7 @@ public extension JSONSchema {
             type: .object,
             description: description,
             objectSchema: ObjectSchema(
+                title: title,
                 properties: properties,
                 required: required,
                 minProperties: minProperties,
