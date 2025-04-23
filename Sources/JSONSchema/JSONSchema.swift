@@ -9,7 +9,7 @@ import Foundation
 
 /// A class that represents a JSON Schema definition.
 public final class JSONSchema: Codable, Sendable {
-    enum SchemaType: String, Codable, Sendable {
+    public enum SchemaType: String, Codable, Sendable {
         case array
         case boolean
         case `enum`
@@ -20,19 +20,21 @@ public final class JSONSchema: Codable, Sendable {
         case string
     }
     
-    let type: SchemaType
-    let description: String?
+    public let title: String?
+    public let type: SchemaType
+    public let description: String?
     
-    let arraySchema: ArraySchema?
-    let booleanSchema: BooleanSchema?
-    let enumSchema: EnumSchema?
-    let integerSchema: IntegerSchema?
-    let nullSchema: NullSchema?
-    let numberSchema: NumberSchema?
-    let objectSchema: ObjectSchema?
-    let stringSchema: StringSchema?
+    public let arraySchema: ArraySchema?
+    public let booleanSchema: BooleanSchema?
+    public let enumSchema: EnumSchema?
+    public let integerSchema: IntegerSchema?
+    public let nullSchema: NullSchema?
+    public let numberSchema: NumberSchema?
+    public let objectSchema: ObjectSchema?
+    public let stringSchema: StringSchema?
     
     init(
+        title: String? = nil,
         type: SchemaType,
         description: String? = nil,
         arraySchema: ArraySchema? = nil,
@@ -44,6 +46,7 @@ public final class JSONSchema: Codable, Sendable {
         objectSchema: ObjectSchema? = nil,
         stringSchema: StringSchema? = nil
     ) {
+        self.title = title
         self.type = type
         self.description = description
         self.arraySchema = arraySchema
@@ -72,6 +75,7 @@ public final class JSONSchema: Codable, Sendable {
         
         self.type = tempType
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
+        self.title = try container.decodeIfPresent(String.self, forKey: .title)
         
         // Initialize all schemas based on the type
         switch tempType {
@@ -158,7 +162,7 @@ public final class JSONSchema: Codable, Sendable {
         }
         
         try container.encodeIfPresent(description, forKey: .description)
-        
+        try container.encodeIfPresent(title, forKey: .title)
         switch type {
         case .array:
             try arraySchema?.encode(to: encoder)
@@ -180,7 +184,7 @@ public final class JSONSchema: Codable, Sendable {
     }
     
     private enum CodingKeys: String, CodingKey {
-        case type, description, `enum`
+        case type, description, `enum`, title
     }
     
     /// Creates a new instance of ``JSONSchema`` from a JSON string.
@@ -206,5 +210,6 @@ public final class JSONSchema: Codable, Sendable {
         self.numberSchema = decodedSchema.numberSchema
         self.objectSchema = decodedSchema.objectSchema
         self.stringSchema = decodedSchema.stringSchema
+        self.title = decodedSchema.title
     }
 }
