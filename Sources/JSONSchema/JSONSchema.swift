@@ -22,11 +22,12 @@ public final class JSONSchema: Codable, Sendable {
         case anyOf
         case allOf
     }
-    
+
     public let title: String?
     public let type: SchemaType
     public let description: String?
-    
+    public let defaultValue: AnyCodable?
+
     public let arraySchema: ArraySchema?
     public let booleanSchema: BooleanSchema?
     public let enumSchema: EnumSchema?
@@ -36,11 +37,12 @@ public final class JSONSchema: Codable, Sendable {
     public let objectSchema: ObjectSchema?
     public let stringSchema: StringSchema?
     public let combinedSchema: CombinedSchema?
-    
+
     init(
         title: String? = nil,
         type: SchemaType,
         description: String? = nil,
+        defaultValue: AnyCodable? = nil,
         arraySchema: ArraySchema? = nil,
         booleanSchema: BooleanSchema? = nil,
         enumSchema: EnumSchema? = nil,
@@ -54,6 +56,7 @@ public final class JSONSchema: Codable, Sendable {
         self.title = title
         self.type = type
         self.description = description
+        self.defaultValue = defaultValue
         self.arraySchema = arraySchema
         self.booleanSchema = booleanSchema
         self.enumSchema = enumSchema
@@ -64,13 +67,13 @@ public final class JSONSchema: Codable, Sendable {
         self.stringSchema = stringSchema
         self.combinedSchema = combinedSchema
     }
-    
+
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         let tempType: SchemaType
         let tempEnumSchema: EnumSchema?
-        
+
         if container.contains(.enum) {
             tempType = .enum
             tempEnumSchema = try EnumSchema(from: decoder)
@@ -87,11 +90,11 @@ public final class JSONSchema: Codable, Sendable {
             tempType = try container.decode(SchemaType.self, forKey: .type)
             tempEnumSchema = nil
         }
-        
+
         self.type = tempType
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.title = try container.decodeIfPresent(String.self, forKey: .title)
-        
+        self.defaultValue = try container.decodeIfPresent(AnyCodable.self, forKey: .defaultValue)
         // Initialize all schemas based on the type
         switch tempType {
         case .array:
@@ -186,14 +189,14 @@ public final class JSONSchema: Codable, Sendable {
             self.combinedSchema = try CombinedSchema(from: decoder)
         }
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         if type != .enum && type != .oneOf && type != .anyOf && type != .allOf {
             try container.encode(type, forKey: .type)
         }
-        
+
         try container.encodeIfPresent(description, forKey: .description)
         try container.encodeIfPresent(title, forKey: .title)
         switch type {
@@ -217,23 +220,24 @@ public final class JSONSchema: Codable, Sendable {
             try combinedSchema?.encode(to: encoder)
         }
     }
-    
+
     private enum CodingKeys: String, CodingKey {
-        case type, description, `enum`, title, oneOf, anyOf, allOf
+        case type, description, `enum`, title, oneOf, anyOf, allOf, defaultValue
     }
-    
+
     /// Creates a new instance of ``JSONSchema`` from a JSON string.
     public convenience init(jsonString: String) throws {
         guard let data = jsonString.data(using: .utf8) else {
-            throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Invalid UTF-8 string"))
+            throw DecodingError.dataCorrupted(
+                .init(codingPath: [], debugDescription: "Invalid UTF-8 string"))
         }
-        
+
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(JSONSchema.self, from: data)
-        
+
         self.init(from: decodedData)
     }
-    
+
     private init(from decodedSchema: JSONSchema) {
         self.type = decodedSchema.type
         self.description = decodedSchema.description
@@ -247,5 +251,6 @@ public final class JSONSchema: Codable, Sendable {
         self.stringSchema = decodedSchema.stringSchema
         self.combinedSchema = decodedSchema.combinedSchema
         self.title = decodedSchema.title
+        self.defaultValue = decodedSchema.defaultValue
     }
 }
