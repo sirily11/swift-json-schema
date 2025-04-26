@@ -57,4 +57,8 @@ public struct AnyCodable: Codable, Sendable {
                 ))
         }
     }
+
+    public func toValue<T>() -> T? {
+        return value as? T
+    }
 }

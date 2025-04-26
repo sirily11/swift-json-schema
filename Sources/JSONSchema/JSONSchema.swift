@@ -94,7 +94,7 @@ public final class JSONSchema: Codable, Sendable {
         self.type = tempType
         self.description = try container.decodeIfPresent(String.self, forKey: .description)
         self.title = try container.decodeIfPresent(String.self, forKey: .title)
-        self.defaultValue = try container.decodeIfPresent(AnyCodable.self, forKey: .defaultValue)
+        self.defaultValue = try container.decodeIfPresent(AnyCodable.self, forKey: .default)
         // Initialize all schemas based on the type
         switch tempType {
         case .array:
@@ -222,7 +222,7 @@ public final class JSONSchema: Codable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case type, description, `enum`, title, oneOf, anyOf, allOf, defaultValue
+        case type, description, `enum`, title, oneOf, anyOf, allOf, `default`
     }
 
     /// Creates a new instance of ``JSONSchema`` from a JSON string.
